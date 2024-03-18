@@ -3,8 +3,8 @@ import Constants from '../utilities/constants'
 
 export default function PostCreateForm(props) {
     const initialFormData = Object.freeze({
-        title: "Post x",
-        content: "This is post x and it has some very interesting content. I have also liked the video and subscribed."
+        title: "Post Title",
+        content: "This is an awesome post and has some content"
     });
 
     const [formData, setFormData] = useState(initialFormData);
@@ -51,7 +51,7 @@ export default function PostCreateForm(props) {
             <h1 className="mt-5">Create new post</h1>
 
             <div className="mt-5">
-                <label className="h3 form-label">Post title</label>
+                <label className="h3 form-label">Post Title</label>
                 <input value={formData.title} name="title" type="text" className="form-control" onChange={handleChange} />
             </div>
 
