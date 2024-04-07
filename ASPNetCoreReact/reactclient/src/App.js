@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Constants from "./utilities/constants";
 import PostCreateForm from "./components/PostCreateForm";
 import PostUpdateForm from "./components/PostUpdateForm";
@@ -8,6 +8,10 @@ export default function App() {
   const [posts, setPosts] = useState([]);
   const [showingCreateNewPostForm, setShowingCreateNewPostForm] = useState(false);
   const [postCurrentlyBeingUpdated, setPostCurrentlyBeingUpdated] = useState(null);
+
+  useEffect(() => {
+    getPosts();
+  }, []);
 
   function getPosts() {
     const url = Constants.API_URL_GET_ALL_POSTS;
@@ -65,26 +69,43 @@ export default function App() {
         </div>
       </nav>  
       </div>
-      <div className="row min-vh-100">
-        <div className="col d-flex flex-column justify-content-center align-items-center">
-          {(showingCreateNewPostForm === false && postCurrentlyBeingUpdated === null) && (
-            <div>
-              <h1>ASP.NET Core React</h1>
+      <div className="row">
+      <div className="container mt-4">
+        {/* Show the update form as the main content if a post is selected for update */}
+        {postCurrentlyBeingUpdated && (
+          <PostUpdateForm post={postCurrentlyBeingUpdated} onPostUpdated={onPostUpdated} />
+        )}
 
-              <div className="mt-5">
-                <button onClick={getPosts} className="btn btn-dark btn-lg w-100">Get Posts from server</button>
-                <button onClick={() => setShowingCreateNewPostForm(true)} className="btn btn-secondary btn-lg w-100 mt-4">Create New Post</button>
-              </div>
+        {/* Otherwise, show the rest of the UI */}
+        {!postCurrentlyBeingUpdated && (
+          <>
+            {showingCreateNewPostForm && <PostCreateForm onPostCreated={onPostCreated} />}
+            
+            {/* Display posts in a more focused or highlighted manner */}
+            <div className="row">
+              {posts.map(post => (
+                <div key={post.postId} className="col-md-4 mb-4">
+                  <div className="card position-relative">
+                    <div className="card-body">
+                      <h5 className="card-title">{post.title}</h5>
+                      <p className="card-text">{post.content}</p>
+                      <div className="position-absolute top-0 end-0 p-2">
+                      <button onClick={() => setPostCurrentlyBeingUpdated(post)} className="btn btn-outline-primary">
+                        <i className="bi bi-pencil-square"></i>
+                      </button>
+                      <button onClick={() => {if(window.confirm(`Are you sure you want to delete the post titled "${post.title}"?`)) deletePost(post.postId) }} className="btn btn-outline-danger ms-2">
+                        <i className="bi bi-x-lg"></i>
+                      </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          )}
-
-          {(posts.length > 0 && showingCreateNewPostForm === false && postCurrentlyBeingUpdated === null) && renderPostsTable()}
-
-          {showingCreateNewPostForm && <PostCreateForm onPostCreated={onPostCreated} />}
-
-          {postCurrentlyBeingUpdated !== null && <PostUpdateForm post={postCurrentlyBeingUpdated} onPostUpdated={onPostUpdated} />}
-        </div>
+          </>
+        )}
       </div>
+</div>
     </div>
   );
 
