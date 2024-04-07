@@ -396,3 +396,4 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+ASPNetCoreReact/reactclient/src/test.txt
