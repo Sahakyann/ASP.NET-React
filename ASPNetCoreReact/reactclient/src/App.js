@@ -72,10 +72,10 @@ export default function App() {
         <table className="table table-bordered border-dark">
           <thead>
             <tr>
-              <th scope="col">PostId (PK)</th>
+              <th scope="col">PostId</th>
               <th scope="col">Title</th>
               <th scope="col">Content</th>
-              <th scope="col">CRUD Operations</th>
+              <th scope="col">Operations</th>
             </tr>
           </thead>
           <tbody>
