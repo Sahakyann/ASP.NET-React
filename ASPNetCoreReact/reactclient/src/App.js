@@ -43,6 +43,24 @@ export default function App() {
 
   return (
     <div className="container">
+      <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div className="container-fluid">
+          <a className="navbar-brand" href="#">React CRUD App</a>
+          <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span className="navbar-toggler-icon"></span>
+          </button>
+          <div className="collapse navbar-collapse" id="navbarNav">
+            <ul className="navbar-nav">
+              <li className="nav-item">
+                <NavLink to="#" className="nav-link" onClick={getPosts}>Get Posts</NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink to="#" className="nav-link" onClick={() => setShowingCreateNewPostForm(true)}>Create Post</NavLink>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
       <div className="row min-vh-100">
         <div className="col d-flex flex-column justify-content-center align-items-center">
           {(showingCreateNewPostForm === false && postCurrentlyBeingUpdated === null) && (
