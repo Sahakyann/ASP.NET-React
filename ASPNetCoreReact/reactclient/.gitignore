@@ -1,6 +1,9 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
+ASP.NET-React/ASPNetCoreReact/aspnetserver/Data/
+aspnetserver/Data/AppDB.db-shm
+aspnetserver/Data/AppDB.db-wal
 /node_modules
 /.pnp
 .pnp.js
