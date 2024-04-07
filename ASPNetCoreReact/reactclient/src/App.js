@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Constants from "./utilities/constants";
 import PostCreateForm from "./components/PostCreateForm";
 import PostUpdateForm from "./components/PostUpdateForm";
@@ -8,6 +8,11 @@ export default function App() {
   const [posts, setPosts] = useState([]);
   const [showingCreateNewPostForm, setShowingCreateNewPostForm] = useState(false);
   const [postCurrentlyBeingUpdated, setPostCurrentlyBeingUpdated] = useState(null);
+  const [viewMode, setViewMode] = useState('list');
+
+  useEffect(() => {
+    getPosts();
+  }, []);
 
   function getPosts() {
     const url = Constants.API_URL_GET_ALL_POSTS;
@@ -43,50 +48,99 @@ export default function App() {
   }
 
   return (
-    
+
     <div className="container">
       <div>
-      <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div className="container-fluid">
-          <a className="navbar-brand" href="#">React CRUD App</a>
-          <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarNav">
-            <ul className="navbar-nav">
-              <li className="nav-item">
-                <NavLink to="#" className="nav-link" onClick={getPosts}>Get Posts</NavLink>
-              </li>
-              <li className="nav-item">
-                <NavLink to="#" className="nav-link" onClick={() => setShowingCreateNewPostForm(true)}>Create Post</NavLink>
-              </li>
-            </ul>
+        <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+          <div className="container-fluid">
+            <a className="navbar-brand" href="#">React CRUD App</a>
+            <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span className="navbar-toggler-icon"></span>
+            </button>
+            <div className="collapse navbar-collapse" id="navbarNav">
+              <ul className="navbar-nav">
+                <li className="nav-item">
+                  <NavLink to="#" className="nav-link" onClick={getPosts}>Get Posts</NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink to="#" className="nav-link" onClick={() => setShowingCreateNewPostForm(true)}>Create Post</NavLink>
+                </li>
+                <li>
+                  <button className="btn btn-outline-secondary mb-3" onClick={() => setViewMode(viewMode === 'list' ? 'card' : 'list')}>
+                    Switch to {viewMode === 'list' ? 'Card' : 'List'} View
+                  </button>
+                </li>
+              </ul>
+            </div>
           </div>
-        </div>
-      </nav>  
+        </nav>
       </div>
-      <div className="row min-vh-100">
-        <div className="col d-flex flex-column justify-content-center align-items-center">
-          {(showingCreateNewPostForm === false && postCurrentlyBeingUpdated === null) && (
-            <div>
-              <h1>ASP.NET Core React</h1>
-
-              <div className="mt-5">
-                <button onClick={getPosts} className="btn btn-dark btn-lg w-100">Get Posts from server</button>
-                <button onClick={() => setShowingCreateNewPostForm(true)} className="btn btn-secondary btn-lg w-100 mt-4">Create New Post</button>
-              </div>
+      <div className="row">
+        <div className="container mt-4">
+          {postCurrentlyBeingUpdated ? (
+            <PostUpdateForm post={postCurrentlyBeingUpdated} onPostUpdated={onPostUpdated} />
+          ) : showingCreateNewPostForm ? (
+            <PostCreateForm onPostCreated={onPostCreated} />
+          ) : (
+            <div className="row">
+              {posts.map(post => (
+                <div key={post.postId} className={viewMode === 'card' ? 'col-md-4 mb-4' : 'mb-2'}>
+                  {viewMode === 'card' ? (
+                  <div className="card position-relative">
+                    <div className="card-body">
+                      <h5 className="card-title">{post.title}</h5>
+                      <p className="card-text">{post.content}</p>
+                      <button className={`btn ${post.liked ? 'btn-danger' : 'btn-outline-danger'}`} onClick={() => toggleLike(post.postId)}>
+                        <i className={`bi ${post.liked ? 'bi-heart-fill' : 'bi-heart'}`}></i>
+                      </button>
+                      <div className="position-absolute top-0 end-0 p-2">
+                        <button onClick={() => setPostCurrentlyBeingUpdated(post)} className="btn btn-outline-primary">
+                          <i className="bi bi-pencil-square"></i>
+                        </button>
+                        <button onClick={() => { if (window.confirm(`Are you sure you want to delete the post titled "${post.title}"?`)) deletePost(post.postId) }} className="btn btn-outline-danger ms-2">
+                          <i className="bi bi-x-lg"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  ) : (
+                    <div className="list-group">
+                      <div className="list-group-item list-group-item-action flex-column align-items-start">
+                        <div className="d-flex w-100 justify-content-between">
+                          <h5 className="mb-1">{post.title}</h5>
+                        </div>
+                        <p className="mb-1">{post.content}</p>
+                        <button className={`btn ${post.liked ? 'btn-danger' : 'btn-outline-danger'}`} onClick={() => toggleLike(post.postId)}>
+                        <i className={`bi ${post.liked ? 'bi-heart-fill' : 'bi-heart'}`}></i>
+                      </button>
+                      <div className="position-absolute top-0 end-0 p-2">
+                        <button onClick={() => setPostCurrentlyBeingUpdated(post)} className="btn btn-outline-primary">
+                          <i className="bi bi-pencil-square"></i>
+                        </button>
+                        <button onClick={() => { if (window.confirm(`Are you sure you want to delete the post titled "${post.title}"?`)) deletePost(post.postId) }} className="btn btn-outline-danger ms-2">
+                          <i className="bi bi-x-lg"></i>
+                        </button>
+                      </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           )}
-
-          {(posts.length > 0 && showingCreateNewPostForm === false && postCurrentlyBeingUpdated === null) && renderPostsTable()}
-
-          {showingCreateNewPostForm && <PostCreateForm onPostCreated={onPostCreated} />}
-
-          {postCurrentlyBeingUpdated !== null && <PostUpdateForm post={postCurrentlyBeingUpdated} onPostUpdated={onPostUpdated} />}
         </div>
       </div>
     </div>
   );
+
+  function toggleLike() {
+    {/*setPosts(posts.map(post => {
+      if (post.postId === postId) {
+        return { ...post, liked: !post.liked }; 
+      }
+      return post;
+    }));*/}
+  }
 
   function renderPostsTable() {
     return (
@@ -108,7 +162,7 @@ export default function App() {
                 <td>{post.content}</td>
                 <td>
                   <button onClick={() => setPostCurrentlyBeingUpdated(post)} className="btn btn-dark btn-lg mx-3 my-3">Update</button>
-                  <button onClick={() => { if(window.confirm(`Are you sure you want to delete the post titled "${post.title}"?`)) deletePost(post.postId) }} className="btn btn-secondary btn-lg">Delete</button>
+                  <button onClick={() => { if (window.confirm(`Are you sure you want to delete the post titled "${post.title}"?`)) deletePost(post.postId) }} className="btn btn-secondary btn-lg">Delete</button>
                 </td>
               </tr>
             ))}
