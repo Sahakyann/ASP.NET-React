@@ -2,6 +2,7 @@
 
 # dependencies
 ASP.NET-React/ASPNetCoreReact/aspnetserver/Data/
+ASPNetCoreReact/aspnetserver/Data/
 aspnetserver/Data/AppDB.db-shm
 aspnetserver/Data/AppDB.db-wal
 /node_modules
