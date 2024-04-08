@@ -14,5 +14,9 @@ namespace aspnetserver.Data
         [Required]
         [MaxLength(100000)]
         public string Content { get; set; } = string.Empty;
+
+        [Required]
+        public bool Liked { get; set; } = false;
+
     }
 }
