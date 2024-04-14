@@ -14,7 +14,7 @@ namespace aspnetserver.Data.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.2");
+            modelBuilder.HasAnnotation("ProductVersion", "8.0.3");
 
             modelBuilder.Entity("aspnetserver.Data.Post", b =>
                 {
@@ -26,6 +26,9 @@ namespace aspnetserver.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(100000)
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("Liked")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -41,36 +44,42 @@ namespace aspnetserver.Data.Migrations
                         {
                             PostId = 1,
                             Content = "This is post 1 and it has some very interesting content",
+                            Liked = false,
                             Title = "Post 1"
                         },
                         new
                         {
                             PostId = 2,
                             Content = "This is post 2 and it has some very interesting content",
+                            Liked = false,
                             Title = "Post 2"
                         },
                         new
                         {
                             PostId = 3,
                             Content = "This is post 3 and it has some very interesting content",
+                            Liked = false,
                             Title = "Post 3"
                         },
                         new
                         {
                             PostId = 4,
                             Content = "This is post 4 and it has some very interesting content",
+                            Liked = false,
                             Title = "Post 4"
                         },
                         new
                         {
                             PostId = 5,
                             Content = "This is post 5 and it has some very interesting content",
+                            Liked = false,
                             Title = "Post 5"
                         },
                         new
                         {
                             PostId = 6,
                             Content = "This is post 6 and it has some very interesting content",
+                            Liked = false,
                             Title = "Post 6"
                         });
                 });
