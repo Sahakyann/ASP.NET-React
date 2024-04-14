@@ -110,7 +110,7 @@ export default function App() {
                           <h5 className="mb-1">{post.title}</h5>
                         </div>
                         <p className="mb-1">{post.content}</p>
-                        <button className={`btn ${post.liked ? 'btn-danger' : 'btn-outline-danger'}`} onClick={() => toggleLike(post.postId)}>
+                        <button className={`btn ${post.liked ? 'btn-danger' : 'btn-outline-danger'}`} onClick={() => toggleLike(post)}>
                         <i className={`bi ${post.liked ? 'bi-heart-fill' : 'bi-heart'}`}></i>
                       </button>
                       <div className="position-absolute top-0 end-0 p-2">
@@ -133,13 +133,31 @@ export default function App() {
     </div>
   );
 
-  function toggleLike() {
-    {/*setPosts(posts.map(post => {
-      if (post.postId === postId) {
-        return { ...post, liked: !post.liked }; 
+  function toggleLike(post) {
+  /*const post = posts.find(p => p.postId === postId);
+    if (!post) return;*/
+  
+    const updatedPost = { ...post, liked: !post.liked };
+  
+    fetch(`${Constants.API_URL_UPDATE_POST}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updatedPost),
+    })
+    .then(response => {
+      if (response.ok) {
+        setPosts(posts.map(p => p.postId === updatedPost.postId ? updatedPost : p));
+        alert('Liked post');
+      } else {
+        alert('Failed to update post like status');
       }
-      return post;
-    }));*/}
+    })
+    .catch(error => {
+      console.error('Error updating post like status:', error);
+      alert('Error updating post like status');
+    });
   }
 
   function renderPostsTable() {
