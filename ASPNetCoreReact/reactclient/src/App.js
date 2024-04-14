@@ -1,18 +1,58 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef} from "react";
 import Constants from "./utilities/constants";
 import PostCreateForm from "./components/PostCreateForm";
 import PostUpdateForm from "./components/PostUpdateForm";
 import { NavLink } from "react-router-dom";
+import './style.css'; 
 
 export default function App() {
   const [posts, setPosts] = useState([]);
   const [showingCreateNewPostForm, setShowingCreateNewPostForm] = useState(false);
   const [postCurrentlyBeingUpdated, setPostCurrentlyBeingUpdated] = useState(null);
   const [viewMode, setViewMode] = useState('list');
+  const [chatVisible, setChatVisible] = useState(false);
+  const { messages, sendMessage } = useWebSocket('wss://localhost:7299/ws');
+  const [newMessage, setNewMessage] = useState('');
+
+ 
 
   useEffect(() => {
     getPosts();
   }, []);
+
+  const toggleChat = () => {
+    setChatVisible(!chatVisible);
+};
+
+
+
+function useWebSocket(url) {
+  const [messages, setMessages] = useState([]);
+  const socket = useRef(null);
+
+  useEffect(() => {
+      socket.current = new WebSocket(url);
+      socket.current.onmessage = event => {
+          setMessages(prevMessages => [...prevMessages, event.data]);
+      };
+      socket.current.onclose = () => console.log('WebSocket disconnected');
+      socket.current.onerror = error => console.error('WebSocket error:', error);
+
+      return () => {
+          if (socket.current) {
+              socket.current.close();
+          }
+      };
+  }, [url]);
+
+  const sendMessage = message => {
+      if (socket.current && socket.current.readyState === WebSocket.OPEN) {
+          socket.current.send(message);
+      }
+  };
+
+  return { messages, sendMessage };
+}
 
   function getPosts() {
     const url = Constants.API_URL_GET_ALL_POSTS;
@@ -75,6 +115,26 @@ export default function App() {
           </div>
         </nav>
       </div>
+      <div className="container">
+            <button onClick={toggleChat} style={{ position: 'fixed', right: 10, top: 10 }}>
+                {chatVisible ? 'Hide Chat' : 'Show Chat'}
+            </button>
+            
+            <div className={`chat-container ${chatVisible ? '' : 'hidden'}`}>
+                <h1>Chat</h1>
+                <form onSubmit={(e) => {
+                    e.preventDefault();
+                    sendMessage(newMessage);
+                    setNewMessage('');
+                }}>
+                    <input type="text" value={newMessage} onChange={(e) => setNewMessage(e.target.value)} />
+                    <button type="submit">Send</button>
+                </form>
+                <div>
+                    {messages.map((msg, index) => <div key={index}>{msg}</div>)}
+                </div>
+            </div>
+        </div>
       <div className="row">
         <div className="container mt-4">
           {postCurrentlyBeingUpdated ? (
@@ -90,7 +150,7 @@ export default function App() {
                     <div className="card-body">
                       <h5 className="card-title">{post.title}</h5>
                       <p className="card-text">{post.content}</p>
-                      <button className={`btn ${post.liked ? 'btn-danger' : 'btn-outline-danger'}`} onClick={() => toggleLike(post.postId)}>
+                      <button className={`btn ${post.liked ? 'btn-danger' : 'btn-outline-danger'}`} onClick={() => toggleLike(post)}>
                         <i className={`bi ${post.liked ? 'bi-heart-fill' : 'bi-heart'}`}></i>
                       </button>
                       <div className="position-absolute top-0 end-0 p-2">

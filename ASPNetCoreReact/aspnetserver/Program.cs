@@ -1,7 +1,21 @@
 using aspnetserver.Data;
 using Swashbuckle.AspNetCore.SwaggerUI;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.WebSockets;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Net.WebSockets;
+using System.Threading;
+using System.Threading.Tasks;
+using WebSocketManager = aspnetserver.Data.WebSocketManager;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+
+builder.Services.AddControllers();
 
 builder.Services.AddCors(options =>
 {
@@ -11,7 +25,8 @@ builder.Services.AddCors(options =>
             builder
             .AllowAnyMethod()
             .AllowAnyHeader()
-            .WithOrigins("http://localhost:3000", "https://appname.azurestaticapps.net");
+            .AllowCredentials()
+            .WithOrigins("http://localhost:3000", "https://localhost:7299", "https://appname.azurestaticapps.net");
         });
 
 });
@@ -34,11 +49,17 @@ app.UseSwaggerUI(swaggerUIOptions =>
     swaggerUIOptions.SwaggerEndpoint("/swagger/v1/swagger.json", "Web API");
     swaggerUIOptions.RoutePrefix = string.Empty;
 });
-
-
-app.UseHttpsRedirection();
-
 app.UseCors("CORSPolicy");
+app.UseWebSockets();
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
+app.UseAuthorization();
+
+
+app.MapWebSocket("/ws", WebSocketManager.HandleConnection);
+
+app.MapControllers();
 
 app.MapGet("/get-all-posts",async () => await PostsRepository.GetPostsAsync()).WithTags("Posts Endpoints");
 
@@ -98,6 +119,28 @@ app.MapDelete("/delete-post-by-id/{postId}", async (int postId) =>
     }
 }).WithTags("Posts Endpoints");
 
+async Task Echo(WebSocket webSocket, CancellationToken cancellationToken)
+{
+    var buffer = new byte[1024 * 4];
+    try
+    {
+        WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
+        while (!result.CloseStatus.HasValue)
+        {
+            await webSocket.SendAsync(new ArraySegment<byte>(buffer, 0, result.Count), result.MessageType, result.EndOfMessage, cancellationToken);
+            result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
+        }
+        await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, cancellationToken);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"WebSocket Error: {ex.Message}");
+        throw;
+
+    }
+}
+
 app.Run();
+
 
 
