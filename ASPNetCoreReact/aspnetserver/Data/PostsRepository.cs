@@ -44,9 +44,8 @@ namespace aspnetserver.Data
             {
                 try
                 {
-                    
                     db.Posts.Update(postToUpdate);
-
+                    
                     return await db.SaveChangesAsync() >= 1;
                 }
                 catch (Exception e)
