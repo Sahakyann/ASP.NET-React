@@ -11,7 +11,12 @@ builder.Services.AddCors(options =>
             builder
             .AllowAnyMethod()
             .AllowAnyHeader()
+<<<<<<< Updated upstream
             .WithOrigins("http://localhost:3000", "https://appname.azurestaticapps.net");
+=======
+            .AllowCredentials()
+            .WithOrigins("http://localhost:3000", "https://localhost:3000", "https://localhost:7299", "https://appname.azurestaticapps.net");
+>>>>>>> Stashed changes
         });
 
 });
